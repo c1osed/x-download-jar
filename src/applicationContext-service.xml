@@ -1,0 +1,52 @@
+<beans xmlns="http://www.springframework.org/schema/beans" 
+	xmlns:cache="http://www.springframework.org/schema/cache" 
+	xmlns:context="http://www.springframework.org/schema/context" 
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:p="http://www.springframework.org/schema/p"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xmlns:aop="http://www.springframework.org/schema/aop"  
+    xsi:schemaLocation="http://www.springframework.org/schema/beans 
+    http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+    http://www.springframework.org/schema/context
+    http://www.springframework.org/schema/context/spring-context.xsd
+    http://www.springframework.org/schema/mvc 
+    http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
+    http://www.springframework.org/schema/aop   
+    http://www.springframework.org/schema/aop/spring-aop.xsd
+    http://www.springframework.org/schema/cache  
+	http://www.springframework.org/schema/cache/spring-cache-3.2.xsd">
+     
+    <!--引入配置属性文件 -->
+	<!-- context:property-placeholder location="classpath:config.properties" /> -->
+	
+    <bean id="envPropertiesConfigurer" class="com.leweiyou.service.dal.EnvPropertyPlaceholderConfigurer" init-method="init"/>  
+    
+    <import resource="classpath*:spring-mybatis.xml"/>
+    
+
+	<!--自动扫描含有@Service将其注入为bean -->
+	<context:component-scan base-package="com.leweiyou.service.service" />
+	
+	<!-- 缓存配置 -->
+	<!-- 启用缓存注解功能(请将其配置在Spring主配置文件中) -->
+	<cache:annotation-driven cache-manager="cacheManager" />
+	
+	<!-- Spring自己的基于java.util.concurrent.ConcurrentHashMap实现的缓存管理器(该功能是从Spring3.1开始提供的) -->
+	<!-- <bean id="cacheManager" class="org.springframework.cache.support.SimpleCacheManager"> 
+	    <property name="caches"> <set> <bean name="myCache" class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean"/> 
+	    </set> </property> </bean> -->
+	
+	<!-- 若只想使用Spring自身提供的缓存器,则注释掉下面的两个关于Ehcache配置的bean,并启用上面的SimpleCacheManager即可 -->
+	<!-- Spring提供的基于的Ehcache实现的缓存管理器 -->
+	<bean id="cacheManagerFactory" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
+	    <property name="configLocation" value="classpath:ehcache.xml" />
+	</bean>
+	<bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheCacheManager">
+	    <property name="cacheManager" ref="cacheManagerFactory" />
+	</bean>
+	
+	<!-- 通过定义Bean获取ApplicationContext -->
+	<bean id="springContextUtil" class="com.leweiyou.service.util.SpringContextUtil"/>
+	
+	
+</beans>
